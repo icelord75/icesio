@@ -1,7 +1,7 @@
 # iceSIO
 iceSIO replacement board for CASIO 3208 modules (CA-53, CA-506 watches)
 
-##Hardware
+## Hardware
 * MCU: Microchip **PIC16F19197** - 8bit MCU, 56kB flash, 4K RAM, 256b EEPROM
 * Accelerometer: NXP **MMA8451QT** - 3-axis, 14-bit/8-bit digital accelerometer
 * Compass: Honeywell **HMC5883L** or Isentek **IST8310** - 3-Axis Digital Compass
