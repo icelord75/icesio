@@ -7,8 +7,8 @@ iceSIO replacement board for CASIO 3208 modules (CA-53, CA-506 watches)
 * Compass: Honeywell **HMC5883L** or Isentek **IST8310** - 3-Axis Digital Compass
 * Barosensor/Humidity/Temp: BOSCH **BME280** - Digital humidity, pressure and temperature sensor
 * LED:
-  *	ON Semiconductor **NCP5623CMUTBG** - Triple Output I2C Controlled RGB LED Driver
-  *	Songxin **SX-0402-RGB** - SMD fullcolor RGB SMD0404 LED
+	*	ON Semiconductor **NCP5623CMUTBG** - Triple Output I2C Controlled RGB LED Driver
+	*	Songxin **SX-0402-RGB** - SMD fullcolor RGB SMD0404 LED
 * Battery: **CR2016** -> CR2020 / CR2025 / CR2320 upgradable?
 
 ## Features
@@ -27,21 +27,21 @@ iceSIO replacement board for CASIO 3208 modules (CA-53, CA-506 watches)
 *	Moon: Precise Moon phase (icon and date)
 *	Equation of time
 *	Accelerometer:
-  *	tap-sensing control
-  *	tilt sensor
-  *	speedometer
-  *	continuous accelerometer
-  *	0-100kmh acceleration/deceleration
+	*	tap-sensing control
+	*	tilt sensor
+	*	speedometer
+	*	continuous accelerometer
+	*	0-100kmh acceleration/deceleration
 *	Compass:
-  *	Regular compass
-  *	Angle finder
+	*	Regular compass
+	*	Angle finder
 *	Enviromental sensor:
-  *	Current temperature (C°/F°)
-  *	Tranding temperature - hour/12h/24h
-  *	Current Humidity (%)
-  *	Tranding humidity - hour/12h/24h
-  *	Current Barometer (hPA, mBar, at, atm, Torr, mmHg, PSI, inHg)
-  *	Tranding barometer - hour/12h/24h
+	*	Current temperature (C°/F°)
+	*	Tranding temperature - hour/12h/24h
+	*	Current Humidity (%)
+	*	Tranding humidity - hour/12h/24h
+	*	Current Barometer (hPA, mBar, at, atm, Torr, mmHg, PSI, inHg)
+	*	Tranding barometer - hour/12h/24h
 
 ##Related Projects
 [goodwatch](https://github.com/travisgoodspeed/goodwatch) replacement circuit board for the Casio 3208 module, used in the Casio CA-53W and CA-506 calculator watches.
