@@ -43,7 +43,8 @@ iceSIO replacement board for CASIO 3208 modules (CA-53, CA-506 watches)
 	*	Current Barometer (hPA, mBar, at, atm, Torr, mmHg, PSI, inHg)
 	*	Tranding barometer - hour/12h/24h
 
-##Related Projects
+## Related Projects
+
 [goodwatch](https://github.com/travisgoodspeed/goodwatch) replacement circuit board for the Casio 3208 module, used in the Casio CA-53W and CA-506 calculator watches.
 
 [Pluto](https://github.com/carrotIndustries/pluto) is a replacement PCB for the Casio F-91W that is also based on an MSP430.
