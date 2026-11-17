@@ -86,6 +86,7 @@ by MPLAB Code Configurator (`icesio.mc3`, [`mcc_generated_files/`](icesio.X/mcc_
 - [x] Power-on self test with progress on the debug UART
 - [x] Time display with a blinking colon and the day of month
 - [x] Setting time and date with the side buttons or the keypad
+- [x] Rate correction in s/day, stored in EEPROM
 - [x] Key click on the buzzer
 - [x] 4×4 keypad driver (test mode shows the pressed key)
 - [x] RGB LED, BME280, MMA8451 and HMC5883L drivers
@@ -102,13 +103,14 @@ date:   D D - M M - Y Y               shown while setting the date
 | Mode        | Button   | Action                                                                 |
 |-------------|----------|------------------------------------------------------------------------|
 | Time        | **PRGM** | enter setting mode                                                     |
-| Setting     | **PRGM** | next field: hour → minute → second → year → month → day → done         |
+| Setting     | **PRGM** | next field: hour → minute → second → year → month → day → rate correction → done |
 | Setting     | **MODE** | +1 to the blinking field; hold to scroll                               |
 | Seconds     | **MODE** | reset to `00` and start the clock right away — press it on the time signal |
 | Setting     | **0…9**  | type the field: two digits set it and jump to the next field (`1_` after the first digit) |
 | Setting     | **=**    | same as PRGM; a single typed digit counts as `0x`                      |
 | Setting     | **+ / −** | +1 / −1 to the field (on seconds: reset to `00`)                      |
 | Setting     | **.**    | finish setting                                                         |
+| Correction  | **MODE / +**, **−** | rate correction ±1 s/day; hold to repeat, after 3 s in steps of 10 |
 
 Keypad (from the goodwatch firmware for the same module, matches the CA-53W):
 
@@ -124,6 +126,19 @@ With `KEYPAD_TEST` on, a key pressed on the time screen is shown as `KEY    7` f
 Typed values are checked: hours 00–23, minutes and seconds 00–59, year 00–99, month 01–12, and the day
 must exist in that month (no 31 April, 29 February only in leap years). An impossible value is rejected
 with a long beep. Typing the seconds starts the clock at the entered time immediately.
+
+### Rate correction
+
+Without a 32.768 kHz crystal the clock runs from the internal MFINTOSC, which can be off by up to ~2 %
+(about ±1700 s/day). The last setting field, `Cor  -12`, holds a correction in **seconds per day**
+(−1999…+1999), saved in the data EEPROM:
+
+1. Set the time exactly and note how many seconds the watch gains or loses over a day or more.
+2. Enter the measured drift per day with the opposite sign: the watch **gains** 12 s/day → `Cor -12`;
+   it **loses** 300 s/day → `Cor 300`.
+
+The firmware then moves the RTCC seconds by one every 86400 / |Cor| seconds, so the watch stays within
+about a second. (The hardware `RTCCAL` register only reaches about ±6 s/day, too little for MFINTOSC.)
 
 Setting mode also ends after 60 s without a press; changes are kept. Only the fields you changed are
 written back, so entering and leaving setting mode never makes the clock lose time. The day of the week
@@ -145,7 +160,7 @@ cd icesio.X
 make -f nbproject/Makefile-default.mk CONF=default .build-conf
 ```
 
-Current size: **~5.3 K of 32 K words** program memory (16 %), **307 B** RAM.
+Current size: **~6.2 K of 32 K words** program memory (19 %), **324 B** RAM.
 
 ### Configuration
 
@@ -163,6 +178,7 @@ Compile-time switches, all at the top of their source files:
 | `BEEP_PR`           | `beep.c`    | `14`    | tone: 62.5 kHz / (`BEEP_PR` + 1) ≈ 4167 Hz                 |
 | `BEEP_CLICK_MS`     | `beep.c`    | `30`    | key click length                                           |
 | `USE_COMPASS`       | `main.c`    | `0`     | initialise and poll the compass                            |
+| `COR_MAX`           | `clock.c`   | `1999`  | rate correction limit, s/day                               |
 
 ---
 
@@ -191,7 +207,8 @@ schematic.png          schematic, rev. V2
   pull-downs. Until 100 k–1 M resistors to GND are added, the firmware discharges the pins before each read
   (`BTN_SOFT_PULLDOWN`). While a button is held this briefly (~50 µs every 100 ms) shorts the pin to +.
 - **RTCC runs from MFINTOSC.** The SOSC crystal pins are used by the keypad, so the clock runs from the
-  internal oscillator (about ±1–2 %). A 32.768 kHz crystal is planned for the next board revision.
+  internal oscillator (about ±1–2 %, and it drifts with temperature). The [rate correction](#rate-correction)
+  compensates the average error; a 32.768 kHz crystal is planned for the next board revision.
 - **SEG17 / SEG20 share the ICSP CLK / DAT pins.** Eight segments are lost while debugging
   (`#ifndef __DEBUG` in `lcd.c`). To be rerouted in the next revision.
 - **Debug UART vs. keypad.** K2 (RG1) is also the EUSART2 TX pin. By default the keypad takes it over
