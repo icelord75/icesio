@@ -26,6 +26,7 @@
       <itemPath>clock.h</itemPath>
       <itemPath>beep.h</itemPath>
       <itemPath>keypad.h</itemPath>
+      <itemPath>debug.h</itemPath>
       <itemPath>lcd.h</itemPath>
       <itemPath>led.h</itemPath>
       <itemPath>bme280.h</itemPath>

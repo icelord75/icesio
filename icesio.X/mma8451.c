@@ -3,6 +3,7 @@
 /* https://github.com/yangosoft/pic_mma8451 */
 
 #include "mma8451.h"
+#include "debug.h"
 
 //Include your MCC generated files for i2c
 #include "mcc_generated_files/mcc.h"
@@ -81,7 +82,7 @@ bool MMAInit(uint8_t wakeupTreshold) {
 
         // wait for the message to be sent or status has changed.
         while (status == I2C1_MESSAGE_PENDING) {
-            //printf(".");
+            DBG_PRINTF(".");
             timeout--;
             if(0 == timeout)
             {
@@ -90,7 +91,7 @@ bool MMAInit(uint8_t wakeupTreshold) {
         };
 
         if (status == I2C1_MESSAGE_COMPLETE) {
-            //printf("\nTrans complete! %d \n", pData);
+            DBG_PRINTF("\nTrans complete! %d \n", pData);
             if (pData != 0x1a) {
                 return false;
             }
@@ -103,7 +104,7 @@ bool MMAInit(uint8_t wakeupTreshold) {
         return false;
     }
     
-    //printf("Reset\n");
+    DBG_PRINTF("Reset\n");
 
     writeRegister8(MMA8451_REG_CTRL_REG2, 0x40); // reset
 
@@ -162,11 +163,11 @@ uint8_t readRegister2(uint8_t address) {
 
         // wait for the message to be sent or status has changed.
         while (status == I2C1_MESSAGE_PENDING) {
-            //printf(".");
+            DBG_PRINTF(".");
         };
 
         if (status == I2C1_MESSAGE_COMPLETE) {
-            //printf("\nTrans complete! %d \n", pData);
+            DBG_PRINTF("\nTrans complete! %d \n", pData);
             return pData;
 
         }
@@ -201,11 +202,11 @@ void MMAGetAccel(int16_t *x, int16_t *y, int16_t *z) {
 
         // wait for the message to be sent or status has changed.
         while (status == I2C1_MESSAGE_PENDING) {
-            //printf(".");
+            DBG_PRINTF(".");
         };
 
         if (status == I2C1_MESSAGE_COMPLETE) {
-            //printf("\nTrans complete!\n");
+            DBG_PRINTF("\nTrans complete!\n");
             //OK
     
 

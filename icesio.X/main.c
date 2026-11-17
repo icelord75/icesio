@@ -23,13 +23,13 @@
 #include "led.h"
 #include "compass.h"
 #include "bme280.h"
+#include "debug.h"
 #include "uart.h"
 #include "mma8451.h"
 #include "clock.h"
 #include "beep.h"
 #include "keypad.h"
 
-//#include <stdio.h>
 /*
    Main application
  */
@@ -55,9 +55,14 @@ void main(void)
 
         // POST Process....
 
+        // UART: debug output in DEBUG builds, switched off otherwise
+        Uart_Init();
+#ifdef DEBUG
+        uint8_t dbgTicks = 0;
+#endif
         // Init console
-        print("\r\n\n\n\n\niCESIO v." __VERSION"\r\n");
-        print("POST: \r\n");
+        DBG_PRINT("\r\n\n\n\n\niCESIO v." __VERSION"\r\n");
+        DBG_PRINT("POST: \r\n");
 /*        RTCC_SetCallback(RTCC_Callback);
         rtccTimeDate currentTime;
         currentTime.tm_year = 24;    // 2024
@@ -71,7 +76,7 @@ void main(void)
   //      RTCC_DateSet(&currentTime);
 
         // Init LCD
-        print("\rLCD...");
+        DBG_PRINT("\rLCD...");
         LCD_Initialize();
         ClearDisplay();
         LCD_Enable();
@@ -79,33 +84,33 @@ void main(void)
         DrawDisplay();
 
         // Init RGB LED
-        print("\rLED...");
+        DBG_PRINT("\rLED...");
         if (led_init()) {
                 led_set(15,0,0);  // RED led while initialize
-                print("OK");
-        } else print("FAILED\r\n");
+                DBG_PRINT("OK");
+        } else DBG_PRINT("FAILED\r\n");
 
 #if USE_COMPASS
         // Init Compass
-        print("\rCOMPASS...");
-        if (HMC5883L_Init()) print("OK");
-                        else print("FAILED\r\n");
+        DBG_PRINT("\rCOMPASS...");
+        if (HMC5883L_Init()) DBG_PRINT("OK");
+                        else DBG_PRINT("FAILED\r\n");
 #endif
 
         // Init EEPROM
-//        print("\rEEPROM...");
+//        DBG_PRINT("\rEEPROM...");
         
         // Init Environment
-        print("\rENVIR...");
+        DBG_PRINT("\rENVIR...");
         BME280_Init();
         
         // Init Accelerometer
-        print("\rACCEL...");
-        if (MMAInit(10)) print("OK");
-                    else print("FAILED\r\n");
+        DBG_PRINT("\rACCEL...");
+        if (MMAInit(10)) DBG_PRINT("OK");
+                    else DBG_PRINT("FAILED\r\n");
 
         // Init RTC
-        print("\rRTC...");
+        DBG_PRINT("\rRTC...");
         RTCC_Enable();
 
 
@@ -114,13 +119,13 @@ void main(void)
         led_shutdown(); // LED Driver 0to sleep mode
 
         // Buzzer
-        print("\rBEEP...");
+        DBG_PRINT("\rBEEP...");
         Beep_Init();
 
         // Clock and side buttons
         Clock_Init();
 
-        print("\rcomplete.\r\n");
+        DBG_PRINT("\rcomplete.\r\n");
 
         // Keypad last: it may take RG1 (UART TX) over
         Keypad_Init();
@@ -131,21 +136,25 @@ void main(void)
 //    SLEEP();
 
         while(1) {
-                /* dots in output -- problem in sleep mode
-                 */
-//               print(".");
                
 #if USE_COMPASS
                 HMC5883L_Read();
 #endif
- //          printf("C X:%d Y:%d Z:%d\r\n",X_axis,Y_axis,Z_axis);
 
-//              BME280_UpdateValues();
-//        printf("T:%d P:%d H:%d\r\n",BME280_Temperature(),BME280_Pressure(),BME280_Humidity());
-
-//        int16_t x,y,z;
-  //             MMAGetAccel(&x,&y,&z);
-  //             printf("A X:%d Y:%d Z:%d\n\r",x,y,z);
+#ifdef DEBUG
+                // Sensor dump once a second
+                if (++dbgTicks >= 1000 / TICK_MS) {
+                        int16_t x, y, z;
+                        dbgTicks = 0;
+#if USE_COMPASS
+                        DBG_PRINTF("C X:%d Y:%d Z:%d\r\n", X_axis, Y_axis, Z_axis);
+#endif
+                        BME280_UpdateValues();
+                        DBG_PRINTF("T:%ld P:%lu H:%lu\r\n", BME280_Temperature(), BME280_Pressure(), BME280_Humidity());
+                        MMAGetAccel(&x, &y, &z);
+                        DBG_PRINTF("A X:%d Y:%d Z:%d\r\n", x, y, z);
+                }
+#endif
 
         
 // Clock: time display and setting with PRGM / MODE

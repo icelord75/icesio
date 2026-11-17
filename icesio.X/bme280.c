@@ -9,6 +9,7 @@
 #include "xc.h"
 #include <string.h>
 #include "bme280.h"
+#include "debug.h"
 
 #define ADR_I2C_BME280 0x76
 
@@ -106,9 +107,11 @@ static Blk3_t blk3;
 
 void BME280_Init(void) {
     
-//    uint8_t bme_id;
-//    BMERead(ID_ADR, 1, &bme_id);
-//    printf("BME: %02x\r\n",bme_id);
+#ifdef DEBUG
+    uint8_t bme_id;
+    BMERead(ID_ADR, 1, &bme_id);
+    DBG_PRINTF("BME: %02x\r\n", bme_id);
+#endif
 
     uint8_t temp = RESET_VAL;
     BMEWrite(RESET_ADR, 1, &temp);
@@ -219,7 +222,7 @@ void BME280_UpdateValues(void) {
         temperature = BME280_compensate_T_int32(temperatureRaw);
         pressure = BME280_compensate_P_int64(pressureRaw);
         humidity = bme280_compensate_H_int32(humidityRaw);        
-//        printf("P:%d T:%d H:%d\r\n",    pressure, temperature, humidity);
+        DBG_PRINTF("P:%lu T:%ld H:%lu\r\n", pressure, temperature, humidity);
     }
 }
 

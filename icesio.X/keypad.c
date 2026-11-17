@@ -15,9 +15,9 @@
  * one row at a time is driven low while the others are left floating.
  *
  * Pin conflicts resolved in Keypad_Init():
- *   - RG1 is the EUSART2 TX pin (PPS). With KEYPAD_ROW_K2 the keypad takes
- *     it over and the debug UART stops; set it to 0 to keep the UART and
- *     lose the bottom row (0 . = +).
+ *   - RG1 is the EUSART2 TX pin (PPS). Normally the keypad takes it over;
+ *     with DEBUG (debug.h) the UART keeps it and the bottom row (0 . = +)
+ *     is not scanned.
  *   - RC0/RC1 are the SOSC crystal pins: the secondary oscillator is
  *     switched off (the RTCC runs from MFINTOSC).
  *   - RC6/RC7 were enabled as LCD segments SEG27/SEG28 (not used by the
@@ -29,8 +29,15 @@
 #include <stdint.h>
 #include "main.h"
 #include "keypad.h"
+#include "debug.h"
 
-#define KEYPAD_ROW_K2   1       // 1 - scan the bottom row (takes RG1 from the UART), 0 - keep UART TX on RG1
+// 1 - scan the bottom row (takes RG1 from the UART), 0 - keep UART TX on RG1.
+// Debug builds (DEBUG in debug.h) keep the UART.
+#ifdef DEBUG
+#define KEYPAD_ROW_K2   0
+#else
+#define KEYPAD_ROW_K2   1
+#endif
 
 /* Port bits */
 #define COL_MASK        0xC3    // RC7, RC6, RC1, RC0

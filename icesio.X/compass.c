@@ -8,6 +8,7 @@
 
 #include <xc.h>
 #include "mcc_generated_files/mcc.h"
+#include "debug.h"
 
 //HMC5883L
 #define HMC5883L_ADDRESS     (0x3D / 2) // MCC I2C driver expect 7 bit address. Read and write internal
@@ -37,7 +38,7 @@ bool HMC5883L_Read()
     I2C1_MasterRead(HMC5883L_DATA, 6, HMC5883L_ADDRESS, &status);
     while (status == I2C1_MESSAGE_PENDING);
     if (status != I2C1_MESSAGE_COMPLETE) return false;
-//        printf("DATA: %u %u %u %u %u %u\r\n",HMC5883L_DATA[0],HMC5883L_DATA[1],HMC5883L_DATA[2],HMC5883L_DATA[3],HMC5883L_DATA[4],HMC5883L_DATA[5]);
+    DBG_PRINTF("DATA: %u %u %u %u %u %u\r\n",HMC5883L_DATA[0],HMC5883L_DATA[1],HMC5883L_DATA[2],HMC5883L_DATA[3],HMC5883L_DATA[4],HMC5883L_DATA[5]);
     // Register order is X, Z, Y (MSB first)
     X_axis=(int16_t)((uint16_t)HMC5883L_DATA[0] << 8 | HMC5883L_DATA[1]);
     Z_axis=(int16_t)((uint16_t)HMC5883L_DATA[2] << 8 | HMC5883L_DATA[3]);

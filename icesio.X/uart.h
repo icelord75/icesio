@@ -12,8 +12,12 @@
 extern "C" {
 #endif
 
-void print (char *string);
+/* Debug builds (DEBUG): switch the EUSART2 transmitter on.
+   Normal builds: switch EUSART2 off completely and free RG1 for the keypad. */
+void Uart_Init(void);
 
+/* Only in DEBUG builds - use DBG_PRINT() / DBG_PRINTF() from debug.h */
+void print (char *string);
 
 
 #ifdef	__cplusplus

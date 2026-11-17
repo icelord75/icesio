@@ -79,11 +79,11 @@ by MPLAB Code Configurator (`icesio.mc3`, [`mcc_generated_files/`](icesio.X/mcc_
 | [`bme280.c`](icesio.X/bme280.c)          | BME280 temperature / humidity / pressure                            |
 | [`mma8451.c`](icesio.X/mma8451.c)        | MMA8451 accelerometer (based on [yangosoft/pic_mma8451](https://github.com/yangosoft/pic_mma8451)) |
 | [`compass.c`](icesio.X/compass.c)        | HMC5883L compass (disabled for now)                                 |
-| [`uart.c`](icesio.X/uart.c)              | `print()` to the debug UART                                         |
+| [`uart.c`](icesio.X/uart.c), [`debug.h`](icesio.X/debug.h) | debug output: `DBG_PRINT()` / `DBG_PRINTF()`, compiled only with `DEBUG` |
 
 ### What works
 
-- [x] Power-on self test with progress on the debug UART
+- [x] Power-on self test with progress on the debug UART (`DEBUG` builds)
 - [x] Time display with a blinking colon and the day of month
 - [x] Setting time and date with the side buttons or the keypad
 - [x] Rate correction in s/day, stored in EEPROM
@@ -160,7 +160,7 @@ cd icesio.X
 make -f nbproject/Makefile-default.mk CONF=default .build-conf
 ```
 
-Current size: **~6.2 K of 32 K words** program memory (19 %), **324 B** RAM.
+Current size: **~6.0 K of 32 K words** program memory (18 %), **324 B** RAM; with `DEBUG` ~11.7 K (printf).
 
 ### Configuration
 
@@ -178,6 +178,7 @@ Compile-time switches, all at the top of their source files:
 | `BEEP_PR`           | `beep.c`    | `14`    | tone: 62.5 kHz / (`BEEP_PR` + 1) ≈ 4167 Hz                 |
 | `BEEP_CLICK_MS`     | `beep.c`    | `30`    | key click length                                           |
 | `USE_COMPASS`       | `main.c`    | `0`     | initialise and poll the compass                            |
+| `DEBUG`             | `debug.h`   | off     | self-test log and a sensor dump every second on the UART (19200 bps, RG1) |
 | `COR_MAX`           | `clock.c`   | `1999`  | rate correction limit, s/day                               |
 
 ---
@@ -211,9 +212,9 @@ schematic.png          schematic, rev. V2
   compensates the average error; a 32.768 kHz crystal is planned for the next board revision.
 - **SEG17 / SEG20 share the ICSP CLK / DAT pins.** Eight segments are lost while debugging
   (`#ifndef __DEBUG` in `lcd.c`). To be rerouted in the next revision.
-- **Debug UART vs. keypad.** K2 (RG1) is also the EUSART2 TX pin. By default the keypad takes it over
-  after the self test (`KEYPAD_ROW_K2`). The MCC setup leaves the transmitter disabled (`TXEN = 0`), so
-  `print()` currently returns without output instead of hanging.
+- **Debug UART vs. keypad.** K2 (RG1) is also the EUSART2 TX pin. The UART exists only in `DEBUG` builds;
+  normal builds switch EUSART2 off and give RG1 to the keypad, debug builds keep the UART there and don't
+  scan the bottom row (0 . = +).
 - **SOSC and LCD pins used by the keypad.** `Keypad_Init()` switches off the secondary oscillator
   (RC0/RC1) and the unused LCD segments SEG27/SEG28 (RC6/RC7) that MCC had enabled.
 - The keypad layout comes from goodwatch and has not been checked on this board yet.
