@@ -1,0 +1,30 @@
+# MPLAB X build output
+icesio.X/build/
+icesio.X/dist/
+icesio.X/debug/
+
+# MPLAB X machine-specific files (absolute tool paths, host id)
+icesio.X/nbproject/private/
+icesio.X/nbproject/Makefile-genesis.properties
+icesio.X/nbproject/Makefile-local-*.mk
+
+# KiCad local state, caches and backups
+*.kicad_prl
+fp-info-cache
+*-backups/
+*.lck
+~*
+
+# Eagle backups
+*.b#?
+*.s#?
+
+# Archives, local backups
+icesio.zip
+.backup-bugfix/
+
+# Third-party reference projects and datasheets (linked from README)
+reference/
+
+# VS Code MPLAB extension: local tool paths
+icesio.X/.vscode/*-local.json

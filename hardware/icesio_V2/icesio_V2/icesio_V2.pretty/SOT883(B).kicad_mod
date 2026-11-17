@@ -1,0 +1,202 @@
+(footprint "SOT883(B)"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "• SOT883(B)\n\n• Plastic surface-mounted package; 3 leads\n• JEDEC: --\n• IEC: --\n• JEITA: SC-101\n\nRemark: SOT883B has the same footprint, package is lower")
+	(property "Reference" "REF**"
+		(at 1 -0.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "c61735df-ede1-4a1f-9429-9699fc3f92a2")
+		(effects
+			(font
+				(size 0.92 0.92)
+				(thickness 0.08)
+			)
+			(justify left bottom)
+		)
+	)
+	(property "Value" "SOT883(B)"
+		(at 1 1 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "8c28b657-c269-41e0-8ebc-7ebd93f35161")
+		(effects
+			(font
+				(size 0.92 0.92)
+				(thickness 0.08)
+			)
+			(justify left bottom)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "6b6abe27-a49d-49b9-81ec-9b5ba55b1b02")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "4e352b64-daf1-489e-89f8-9864b161d686")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(fp_poly
+		(pts
+			(xy -0.6 -0.05) (xy -0.1 -0.05) (xy -0.1 -0.4) (xy -0.6 -0.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill yes)
+		(layer "F.Mask")
+		(uuid "a276a594-5a8e-45d4-820b-6fde1007cdfa")
+	)
+	(fp_poly
+		(pts
+			(xy -0.6 0.4) (xy -0.1 0.4) (xy -0.1 0.05) (xy -0.6 0.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill yes)
+		(layer "F.Mask")
+		(uuid "713aacfe-6e55-42bd-899a-09fa2385a129")
+	)
+	(fp_poly
+		(pts
+			(xy 0.1 0.4) (xy 0.6 0.4) (xy 0.6 -0.4) (xy 0.1 -0.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill yes)
+		(layer "F.Mask")
+		(uuid "15faeac8-f8a5-464d-8931-fddcd604a96e")
+	)
+	(fp_poly
+		(pts
+			(xy 0.2 0.3) (xy 0.5 0.3) (xy 0.5 -0.3) (xy 0.2 -0.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill yes)
+		(layer "F.Paste")
+		(uuid "7a5b9188-7332-4684-95f0-5d8f70eadeb6")
+	)
+	(fp_poly
+		(pts
+			(xy -0.2 -0.3) (xy -0.2 -0.15) (xy -0.25 -0.1) (xy -0.45 -0.1) (xy -0.5 -0.15) (xy -0.5 -0.3) (xy -0.45 -0.35)
+			(xy -0.25 -0.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill yes)
+		(layer "F.Paste")
+		(uuid "1940aa99-22ef-45a2-a611-fe396bafdacb")
+	)
+	(fp_poly
+		(pts
+			(xy -0.2 0.15) (xy -0.2 0.3) (xy -0.25 0.35) (xy -0.45 0.35) (xy -0.5 0.3) (xy -0.5 0.15) (xy -0.45 0.1)
+			(xy -0.25 0.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill yes)
+		(layer "F.Paste")
+		(uuid "0366f9b7-2857-4993-b0ff-b6e69acbecf4")
+	)
+	(fp_line
+		(start -0.5 -0.3)
+		(end 0.5 -0.3)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "2b2aa677-9e5a-4a44-9158-163dd708a5c4")
+	)
+	(fp_line
+		(start -0.5 0.3)
+		(end -0.5 -0.3)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "10dfec02-493f-4e5c-89a4-9335ffc66a62")
+	)
+	(fp_line
+		(start 0.5 -0.3)
+		(end 0.5 0.3)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "631a508b-3368-459d-afcf-b3d910f59021")
+	)
+	(fp_line
+		(start 0.5 0.3)
+		(end -0.5 0.3)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "522880b6-4fa3-463b-9fab-c046d994246b")
+	)
+	(pad "1" smd roundrect
+		(at -0.35 -0.225)
+		(size 0.4 0.25)
+		(layers "F.Cu")
+		(roundrect_rratio 0.125)
+		(solder_mask_margin 0.05)
+		(solder_paste_margin 0)
+		(thermal_bridge_angle 0)
+		(uuid "b2cce335-020c-46a0-a561-0eb88078924a")
+	)
+	(pad "2" smd roundrect
+		(at -0.35 0.225)
+		(size 0.4 0.25)
+		(layers "F.Cu")
+		(roundrect_rratio 0.125)
+		(solder_mask_margin 0.05)
+		(solder_paste_margin 0)
+		(thermal_bridge_angle 0)
+		(uuid "545c1404-b9ec-42d1-a994-cea3dc68c790")
+	)
+	(pad "3" smd roundrect
+		(at 0.35 0)
+		(size 0.4 0.7)
+		(layers "F.Cu")
+		(roundrect_rratio 0.125)
+		(solder_mask_margin 0.05)
+		(solder_paste_margin 0)
+		(thermal_bridge_angle 0)
+		(uuid "c4d424be-d61a-4481-ad35-1ec0d3cc401a")
+	)
+	(embedded_fonts no)
+)

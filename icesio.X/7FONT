@@ -1,0 +1,113 @@
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+     AAA
+    F   B
+     GGG
+    E   C
+     DDD d
+
+	0,             //(space)
+	B|DP,          //! 
+	F|B,           //"
+	F|E|B|C,       //#
+	A|F|G|D,       //$
+	A|F|C|D        //%
+	G|B|A|F|E|D,   //&
+	F,             //'
+	A|F|E|D,       //(
+	A|B|C|D,       //)
+	A|B|G|F,       //*
+	F|G|E          //+
+	C|D,           //,
+	G,             //-
+	DP,            //.
+	B|G,           ///
+    A|B|C|D|E|F,   //0
+    B|C,           //1
+    A|B|G|E|D,     //2
+    A|B|G|C|D,     //3
+    F|G|B|C,       //4
+    A|F|G|C|D,     //5
+    A|F|G|E|C|D,   //6
+    A|B|C,         //7
+    A|B|C|D|E|F|G, //8
+    A|B|G|F|C|D,   //9
+	G|D,           //:
+	G|C|D,         //;
+	A|F|G,         //<
+	A|G,           //=
+    A|B|G,         //>
+	A|B|G|E,       //?
+	A|B|C|D|E|G,   //@
+    A|F|B|G|E|C,   //A
+    F|E|G|C|D,     //B
+    A|F|E|D,       //C
+    E|G|C|D|B,     //D
+    A|F|E|G|D,     //E
+    A|G|F|E,       //F
+    A|F|G|E|C|D,   //G
+    F|G|E|C,       //h
+    F|E,           //I, distinguished from a 1 by being on the left side.
+    E|B|C|D,       //J
+    F|E|B|C|G|DP,  //K, distinguished from an X by the DP.
+    F|E|D,         //L
+    A|E|C,         //M  (Less nerdy than mu, but more readable.)
+    E|G|C,         //n
+    A|B|C|D|E|F,   //O
+    F|A|B|G|E,     //P
+    F|A|B|C|D|E|DP,//Q
+    E|G,           //R
+    A|F|G|C|D,     //S  (Looks like a 5.)
+    F|E|G|D,       //T
+    E|D|C,         //U  (Like a lowercase V)
+    F|E|D|C|B,     //V  (Like U.  Blame Rome.)
+    F|B|D,         //W  (Inverted M)
+    F|G|E|B|C,     //X
+    F|G|B|C|D,     //Y  
+    A|B|G|E|D      //Z
+	A|F|E|D,       //[
+	A|G,           //\
+	A|B|C|D,       //] 
+	F|A|B,         //^
+	D,             //_
+	B,             //`
+	E|G|C|D|DP,    //a
+	F|E|D|C|G,     //b
+	G|E|D          //c 
+	B|C|D|E|G,     //d
+	G|B|A|F|E|D,   //e
+	F|G|E,         //f
+	G|F|A|B|C|D,   //g
+	F|E|G|C,       //h
+	C,             //i
+	C|D,           //j
+	0b01110101, /* k */
+	F|E,           //l
+	E|C,           //m
+	E|G|C,         //n
+	E|G|C|D,       //o
+	E|F|A|B|G,     //p
+	G|F|A|B|C,     //q
+	E|G,           //r
+	A|F|G|C|D,     //s
+	F|G|E|D,       //t
+	E|D|C,         //u
+	E|D|C,         //v
+	E|C,           //w
+	F|B|G|E|C,     //x
+	F|G|B|C|D,     //y
+	A|B|G|E|D,     //z
+	A|F|E|D,       //{
+	F|E,           //|
+	A|B|C|D,       //}
+	A,             // ~ 
+	0,             // (del)

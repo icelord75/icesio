@@ -1,0 +1,17 @@
+(module CSP (layer F.Cu) (tedit 0)
+  (fp_text reference IC4 (at 0 0) (layer F.SilkS) hide
+    (effects (font (size 1.27 1.27) (thickness 0.15)))
+  )
+  (fp_text value 24CW1280T-I/CS0668 (at 0 0) (layer F.SilkS) hide
+    (effects (font (size 1.27 1.27) (thickness 0.15)))
+  )
+  (fp_circle (center -0.2 -0.2) (end -0.18 -0.2) (layer F.SilkS) (width 0.127))
+  (pad VCC smd roundrect (at 0 0 90) (size 0.25 0.25) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.5)
+    (solder_mask_margin 0.05))
+  (pad VSS smd roundrect (at 0.4 0 90) (size 0.25 0.25) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.5)
+    (solder_mask_margin 0.05))
+  (pad SDA smd roundrect (at 0.4 0.4 90) (size 0.25 0.25) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.5)
+    (solder_mask_margin 0.05))
+  (pad SCL smd roundrect (at 0 0.4 90) (size 0.25 0.25) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.5)
+    (solder_mask_margin 0.05))
+)

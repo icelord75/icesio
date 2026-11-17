@@ -1,0 +1,7 @@
+{
+    "mplab.clangd.compileCommandsDir": "${workspaceFolder}/_build/icesio/default",
+    "mplab.clangd.arguments": [
+        "--header-insertion=never"
+    ],
+    "mplab.clangd.path": "/opt/microchip/xc8/v3.10/bin/xc8-clangd"
+}

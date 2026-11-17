@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name icesio_V2-eagle-import)(type Legacy)(uri ${KIPRJMOD}/icesio_V2-eagle-import.lib)(options "")(descr ""))
+)
