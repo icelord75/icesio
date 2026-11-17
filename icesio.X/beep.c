@@ -19,6 +19,7 @@
 #include "beep.h"
 
 #define BEEP_CLICK_MS   30      // key click length
+#define BEEP_ERROR_MS   250     // rejected input
 
 /* Tone: TMR2 clock Fosc/4 = 62.5 kHz, f = 62.5 kHz / (BEEP_PR + 1)
      PR 14 -> 4167 Hz, PR 15 -> 3906 Hz, PR 30 -> 2016 Hz
@@ -71,5 +72,12 @@ void Beep_Click(void)
 {
         Beep_Start();
         __delay_ms(BEEP_CLICK_MS);
+        Beep_Stop();
+}
+
+void Beep_Error(void)
+{
+        Beep_Start();
+        __delay_ms(BEEP_ERROR_MS);
         Beep_Stop();
 }

@@ -85,7 +85,7 @@ by MPLAB Code Configurator (`icesio.mc3`, [`mcc_generated_files/`](icesio.X/mcc_
 
 - [x] Power-on self test with progress on the debug UART
 - [x] Time display with a blinking colon and the day of month
-- [x] Setting time and date with the side buttons
+- [x] Setting time and date with the side buttons or the keypad
 - [x] Key click on the buzzer
 - [x] 4×4 keypad driver (test mode shows the pressed key)
 - [x] RGB LED, BME280, MMA8451 and HMC5883L drivers
@@ -105,6 +105,10 @@ date:   D D - M M - Y Y               shown while setting the date
 | Setting     | **PRGM** | next field: hour → minute → second → year → month → day → done         |
 | Setting     | **MODE** | +1 to the blinking field; hold to scroll                               |
 | Seconds     | **MODE** | reset to `00` and start the clock right away — press it on the time signal |
+| Setting     | **0…9**  | type the field: two digits set it and jump to the next field (`1_` after the first digit) |
+| Setting     | **=**    | same as PRGM; a single typed digit counts as `0x`                      |
+| Setting     | **+ / −** | +1 / −1 to the field (on seconds: reset to `00`)                      |
+| Setting     | **.**    | finish setting                                                         |
 
 Keypad (from the goodwatch firmware for the same module, matches the CA-53W):
 
@@ -116,6 +120,10 @@ Keypad (from the goodwatch firmware for the same module, matches the CA-53W):
 | **K2** | 0  | .  | =  | +  |
 
 With `KEYPAD_TEST` on, a key pressed on the time screen is shown as `KEY    7` for one second.
+
+Typed values are checked: hours 00–23, minutes and seconds 00–59, year 00–99, month 01–12, and the day
+must exist in that month (no 31 April, 29 February only in leap years). An impossible value is rejected
+with a long beep. Typing the seconds starts the clock at the entered time immediately.
 
 Setting mode also ends after 60 s without a press; changes are kept. Only the fields you changed are
 written back, so entering and leaving setting mode never makes the clock lose time. The day of the week
@@ -137,7 +145,7 @@ cd icesio.X
 make -f nbproject/Makefile-default.mk CONF=default .build-conf
 ```
 
-Current size: **~4.9 K of 32 K words** program memory (15 %), **307 B** RAM.
+Current size: **~5.3 K of 32 K words** program memory (16 %), **307 B** RAM.
 
 ### Configuration
 

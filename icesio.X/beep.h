@@ -12,5 +12,7 @@ void Beep_Start(void);
 void Beep_Stop(void);
 /* Short key click, blocks for BEEP_CLICK_MS */
 void Beep_Click(void);
+/* Long beep for a rejected input, blocks for BEEP_ERROR_MS */
+void Beep_Error(void);
 
 #endif  /* BEEP_H */

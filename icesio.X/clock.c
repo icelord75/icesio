@@ -9,7 +9,17 @@
  *                  MODE - change the blinking field (+1, hold for auto-repeat);
  *                         on seconds - reset to 00 and start the clock
  *                         right away (press it on the time signal)
- *   Keypad (KEYPAD_TEST): the pressed key is shown as "KEY    x" for 1 s.
+ *   Keypad in setting mode:
+ *                  0..9 - type the field: two digits set it and move on to
+ *                         the next field ("1_" after the first digit);
+ *                         hours are typed as 00..23, the year as 00..99;
+ *                         typing seconds starts the clock at hh:mm:ss
+ *                  =    - like PRGM (a single typed digit is taken as 0x)
+ *                  + -  - change the field by one (on seconds: reset to 00)
+ *                  .    - finish setting
+ *                  An impossible value (hour 25, 31 April...) is rejected
+ *                  with a long beep.
+ *   Keypad in time mode (KEYPAD_TEST): the key is shown as "KEY    x" for 1 s.
  *   Setting mode is also left (keeping the changes) after SET_TIMEOUT_S
  *   seconds without a press.
  *
@@ -63,6 +73,8 @@ static int8_t     lastSec = -1; // second shown on the display last time
 static uint8_t    ticks;        // colon / blink phase
 static uint16_t   idleTicks;    // ticks since the last press in setting mode
 static uint8_t    keyShowTicks; // keypad test: ticks left to show the pressed key
+static uint8_t    entryCount;   // digits typed into the current field (0 or 1)
+static uint8_t    entryValue;   // the digit typed so far
 
 /* ---------- calendar helpers (years 2000..2099) ---------- */
 
@@ -137,6 +149,18 @@ static void Render(const struct tm *t, ClockState screen, ClockState field, bool
                         Put2(&Display.digit9, &Display.digit10, (uint8_t)t->tm_mday, false);
         }
 
+        // One digit typed into the field being set: show it as "d_"
+        if (entryCount && screen == state) {
+                uint8_t *hi, *lo;
+                switch (state) {
+                case CLK_SET_HOUR: case CLK_SET_DAY:  hi = &Display.digit0; lo = &Display.digit1; break;
+                case CLK_SET_MIN:  case CLK_SET_MON:  hi = &Display.digit3; lo = &Display.digit4; break;
+                default:                              hi = &Display.digit6; lo = &Display.digit7; break;
+                }
+                *hi = (uint8_t)numfont[entryValue];
+                *lo = D;                        // underscore: waiting for the second digit
+        }
+
         DrawDisplay();
 }
 
@@ -147,6 +171,7 @@ static void EnterSetting(void)
         ReadTime(&edit);
         timeApplied = hourEdited = minEdited = dateEdited = false;
         state = CLK_SET_HOUR;
+        entryCount = 0;
         ticks = 0;
         idleTicks = 0;
 }
@@ -175,15 +200,23 @@ static void LeaveSetting(void)
         lastSec = -1;       // force a redraw
 }
 
-static void Increment(void)
+/* Add 'by' to a value in 0..n-1, wrapping around */
+static uint8_t Wrap(uint8_t val, int8_t by, uint8_t n)
 {
+        return (uint8_t)((val + n + by) % n);
+}
+
+/* Change the current field by +1 / -1 */
+static void Step(int8_t dir)
+{
+        entryCount = 0;
         switch (state) {
         case CLK_SET_HOUR:
-                edit.tm_hour = (edit.tm_hour + 1) % 24;
+                edit.tm_hour = Wrap((uint8_t)edit.tm_hour, dir, 24);
                 hourEdited = true;
                 break;
         case CLK_SET_MIN:
-                edit.tm_min = (edit.tm_min + 1) % 60;
+                edit.tm_min = Wrap((uint8_t)edit.tm_min, dir, 60);
                 minEdited = true;
                 break;
         case CLK_SET_SEC:
@@ -193,22 +226,105 @@ static void Increment(void)
                 timeApplied = true;
                 break;
         case CLK_SET_YEAR:
-                edit.tm_year = 2000 + ((edit.tm_year - 2000 + 1) % 100);
+                edit.tm_year = 2000 + Wrap((uint8_t)(edit.tm_year - 2000), dir, 100);
                 ClampDay(&edit);
                 dateEdited = true;
                 break;
         case CLK_SET_MON:
-                edit.tm_mon = (edit.tm_mon % 12) + 1;
+                edit.tm_mon = Wrap((uint8_t)(edit.tm_mon - 1), dir, 12) + 1;
                 ClampDay(&edit);
                 dateEdited = true;
                 break;
         case CLK_SET_DAY:
-                edit.tm_mday = (edit.tm_mday % DaysInMonth((uint8_t)edit.tm_mon, (uint16_t)edit.tm_year)) + 1;
+                edit.tm_mday = Wrap((uint8_t)(edit.tm_mday - 1), dir,
+                                    DaysInMonth((uint8_t)edit.tm_mon, (uint16_t)edit.tm_year)) + 1;
                 dateEdited = true;
                 break;
         default:
                 break;
         }
+}
+
+/* Set the current field to a typed value. false if the value is impossible. */
+static bool SetField(uint8_t v)
+{
+        switch (state) {
+        case CLK_SET_HOUR:
+                if (v > 23) return false;
+                edit.tm_hour = v;
+                hourEdited = true;
+                break;
+        case CLK_SET_MIN:
+                if (v > 59) return false;
+                edit.tm_min = v;
+                minEdited = true;
+                break;
+        case CLK_SET_SEC:
+                if (v > 59) return false;
+                edit.tm_sec = v;
+                WriteTime(&edit);               // start the clock at hh:mm:ss now
+                timeApplied = true;
+                break;
+        case CLK_SET_YEAR:
+                if (v > 99) return false;
+                edit.tm_year = 2000 + v;
+                ClampDay(&edit);
+                dateEdited = true;
+                break;
+        case CLK_SET_MON:
+                if (v < 1 || v > 12) return false;
+                edit.tm_mon = v;
+                ClampDay(&edit);
+                dateEdited = true;
+                break;
+        case CLK_SET_DAY:
+                if (v < 1 || v > DaysInMonth((uint8_t)edit.tm_mon, (uint16_t)edit.tm_year)) return false;
+                edit.tm_mday = v;
+                dateEdited = true;
+                break;
+        default:
+                return false;
+        }
+        return true;
+}
+
+/* Go to the next field. true if setting mode was left. */
+static bool NextField(void)
+{
+        entryCount = 0;
+        if (state == CLK_SET_DAY) {
+                LeaveSetting();
+                return true;
+        }
+        state++;
+        return false;
+}
+
+/* PRGM / '=': take a pending single digit, then move on. true if setting mode was left. */
+static bool Confirm(void)
+{
+        if (entryCount && !SetField(entryValue)) {
+                entryCount = 0;
+                Beep_Error();
+                return false;
+        }
+        return NextField();
+}
+
+/* A digit key. true if setting mode was left. */
+static bool Digit(uint8_t d)
+{
+        if (entryCount == 0) {
+                entryValue = d;
+                entryCount = 1;
+                return false;
+        }
+        entryCount = 0;
+        if (!SetField((uint8_t)(entryValue * 10 + d))) {
+                Beep_Error();
+                return false;
+        }
+        return NextField();
 }
 
 /* ---------- public ---------- */
@@ -270,7 +386,8 @@ void Clock_Tick(void)
         }
 
         /* Setting mode */
-        if (pressed) {
+        bool input = pressed || key;
+        if (input) {
                 idleTicks = 0;
                 ticks = 0;                      // show the field right after a press
         } else if (++idleTicks >= SET_TIMEOUT_TICKS) {
@@ -278,19 +395,25 @@ void Clock_Tick(void)
                 return;
         }
 
-        if (pressed & BTN_PRGM) {
-                if (state == CLK_SET_DAY) {
-                        LeaveSetting();
-                        return;
-                }
-                state++;
-        } else if (pressed & BTN_MODE) {
-                Increment();
+        bool left = false;
+        if ((pressed & BTN_PRGM) || key == '=') {
+                left = Confirm();
+        } else if ((pressed & BTN_MODE) || key == '+') {
+                Step(+1);
+        } else if (key == '-') {
+                Step(-1);
+        } else if (key >= '0' && key <= '9') {
+                left = Digit((uint8_t)(key - '0'));
+        } else if (key == '.') {
+                LeaveSetting();
+                left = true;
         }
+        if (left) return;                       // the time screen redraws itself
 
-        // Redraw only when something changes: a press or a blink phase switch
-        if (pressed || ticks == 0 || ticks == BLINK_ON_TICKS) {
-                bool hide = (ticks >= BLINK_ON_TICKS) && !(Buttons_Held() & BTN_MODE);
+        // Redraw only when something changes: a press or a blink phase switch.
+        // The field doesn't blink while MODE is held or a digit is pending.
+        if (input || ticks == 0 || ticks == BLINK_ON_TICKS) {
+                bool hide = (ticks >= BLINK_ON_TICKS) && !(Buttons_Held() & BTN_MODE) && !entryCount;
                 Render(&edit, state, hide ? state : CLK_TIME, true);
         }
         if (++ticks >= BLINK_PERIOD_TICKS) ticks = 0;
