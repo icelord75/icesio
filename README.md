@@ -56,7 +56,8 @@ All peripherals share one I²C bus. A 19200 bps TTL UART is available for debugg
 | MODE           | RH0              | side button, active high (connects to +)                 |
 | PRGM           | RH1              | side button, active high (connects to +)                 |
 | SIG            | RG0 (PWM3 via PPS) | buzzer, through T1 (PDTC114) and the coil L1           |
-| K2…K9          | see schematic    | keypad (not used yet; K2 = RG1 is UART TX2 for now)      |
+| K2…K5          | RG1, RG2, RG3, RF7 | keypad rows (driven low)                               |
+| K6…K9          | RC7, RC6, RC0, RC1 | keypad columns (inputs, weak pull-ups)                 |
 | LCD_S0…S30, C0…C3 | LCD SEG/COM pins | 4-COM multiplexed LCD                                |
 
 ---
@@ -72,6 +73,7 @@ by MPLAB Code Configurator (`icesio.mc3`, [`mcc_generated_files/`](icesio.X/mcc_
 | [`clock.c`](icesio.X/clock.c)            | time screen and time / date setting                                 |
 | [`buttons.c`](icesio.X/buttons.c)        | MODE / PRGM debouncing, auto-repeat, software pull-down             |
 | [`beep.c`](icesio.X/beep.c)              | buzzer: ~4 kHz hardware PWM, key click                              |
+| [`keypad.c`](icesio.X/keypad.c)          | 4×4 keypad matrix scan with debouncing                              |
 | [`lcd.c`](icesio.X/lcd.c)                | 7-segment font and table-driven LCD segment mapping                 |
 | [`led.c`](icesio.X/led.c)                | NCP5623C RGB LED driver                                             |
 | [`bme280.c`](icesio.X/bme280.c)          | BME280 temperature / humidity / pressure                            |
@@ -85,8 +87,9 @@ by MPLAB Code Configurator (`icesio.mc3`, [`mcc_generated_files/`](icesio.X/mcc_
 - [x] Time display with a blinking colon and the day of month
 - [x] Setting time and date with the side buttons
 - [x] Key click on the buzzer
+- [x] 4×4 keypad driver (test mode shows the pressed key)
 - [x] RGB LED, BME280, MMA8451 and HMC5883L drivers
-- [ ] Keypad, alarms, stopwatch, timer, calculator… — see the [roadmap](#roadmap)
+- [ ] Alarms, stopwatch, timer, calculator… — see the [roadmap](#roadmap)
 
 ### Using the watch
 
@@ -102,6 +105,17 @@ date:   D D - M M - Y Y               shown while setting the date
 | Setting     | **PRGM** | next field: hour → minute → second → year → month → day → done         |
 | Setting     | **MODE** | +1 to the blinking field; hold to scroll                               |
 | Seconds     | **MODE** | reset to `00` and start the clock right away — press it on the time signal |
+
+Keypad (from the goodwatch firmware for the same module, matches the CA-53W):
+
+|        | K6 | K7 | K8 | K9 |
+|--------|:--:|:--:|:--:|:--:|
+| **K5** | 7  | 8  | 9  | ÷  |
+| **K4** | 4  | 5  | 6  | ×  |
+| **K3** | 1  | 2  | 3  | −  |
+| **K2** | 0  | .  | =  | +  |
+
+With `KEYPAD_TEST` on, a key pressed on the time screen is shown as `KEY    7` for one second.
 
 Setting mode also ends after 60 s without a press; changes are kept. Only the fields you changed are
 written back, so entering and leaving setting mode never makes the clock lose time. The day of the week
@@ -123,7 +137,7 @@ cd icesio.X
 make -f nbproject/Makefile-default.mk CONF=default .build-conf
 ```
 
-Current size: **~4.6 K of 32 K words** program memory (14 %), **284 B** RAM.
+Current size: **~4.9 K of 32 K words** program memory (15 %), **307 B** RAM.
 
 ### Configuration
 
@@ -132,7 +146,9 @@ Compile-time switches, all at the top of their source files:
 | Define              | File        | Default | Meaning                                                    |
 |---------------------|-------------|---------|------------------------------------------------------------|
 | `CLOCK_24H`         | `clock.c`   | `1`     | 24-hour display; `0` for 12-hour with AM/PM                 |
-| `KEY_BEEP`          | `clock.c`   | `1`     | click on every button press                                |
+| `KEY_BEEP`          | `clock.c`   | `1`     | click on every button / key press                          |
+| `KEYPAD_TEST`       | `clock.c`   | `1`     | show the pressed key on the time screen                    |
+| `KEYPAD_ROW_K2`     | `keypad.c`  | `1`     | scan the bottom row on RG1; `0` keeps RG1 as UART TX       |
 | `SET_TIMEOUT_S`     | `clock.c`   | `60`    | leave setting mode after this many seconds                 |
 | `BTN_ACTIVE_LOW`    | `buttons.c` | `0`     | buttons connect to + (`0`) or to GND (`1`)                 |
 | `BTN_SOFT_PULLDOWN` | `buttons.c` | `1`     | software pull-down, see [known issues](#known-issues)      |
@@ -170,7 +186,12 @@ schematic.png          schematic, rev. V2
   internal oscillator (about ±1–2 %). A 32.768 kHz crystal is planned for the next board revision.
 - **SEG17 / SEG20 share the ICSP CLK / DAT pins.** Eight segments are lost while debugging
   (`#ifndef __DEBUG` in `lcd.c`). To be rerouted in the next revision.
-- Pin definitions for SIG and K2…K9 in `main.h` are partly out of date.
+- **Debug UART vs. keypad.** K2 (RG1) is also the EUSART2 TX pin. By default the keypad takes it over
+  after the self test (`KEYPAD_ROW_K2`). The MCC setup leaves the transmitter disabled (`TXEN = 0`), so
+  `print()` currently returns without output instead of hanging.
+- **SOSC and LCD pins used by the keypad.** `Keypad_Init()` switches off the secondary oscillator
+  (RC0/RC1) and the unused LCD segments SEG27/SEG28 (RC6/RC7) that MCC had enabled.
+- The keypad layout comes from goodwatch and has not been checked on this board yet.
 
 ---
 

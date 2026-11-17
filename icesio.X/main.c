@@ -27,6 +27,7 @@
 #include "mma8451.h"
 #include "clock.h"
 #include "beep.h"
+#include "keypad.h"
 
 //#include <stdio.h>
 /*
@@ -120,6 +121,9 @@ void main(void)
         Clock_Init();
 
         print("\rcomplete.\r\n");
+
+        // Keypad last: it may take RG1 (UART TX) over
+        Keypad_Init();
 
 // Setup WDT and INTERRUPTS
 

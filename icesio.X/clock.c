@@ -9,6 +9,7 @@
  *                  MODE - change the blinking field (+1, hold for auto-repeat);
  *                         on seconds - reset to 00 and start the clock
  *                         right away (press it on the time signal)
+ *   Keypad (KEYPAD_TEST): the pressed key is shown as "KEY    x" for 1 s.
  *   Setting mode is also left (keeping the changes) after SET_TIMEOUT_S
  *   seconds without a press.
  *
@@ -27,11 +28,14 @@
 #include "lcd.h"
 #include "buttons.h"
 #include "beep.h"
+#include "keypad.h"
 #include "clock.h"
 
 #define CLOCK_24H           1   // 1 - 24-hour display, 0 - 12-hour display with AM/PM signs
 #define SET_TIMEOUT_S       60  // leave setting mode after this many seconds without a press
-#define KEY_BEEP            1   // 1 - click the buzzer on every button press (not on auto-repeat)
+#define KEY_BEEP            1   // 1 - click the buzzer on every button / key press (not on auto-repeat)
+#define KEYPAD_TEST         1   // 1 - show the pressed keypad key on the time screen
+#define KEY_SHOW_TICKS      (1000 / TICK_MS)
 
 #define COLON_ON_TICKS      (500 / TICK_MS)             // colon is lit for the first half of each second
 #define BLINK_PERIOD_TICKS  (1000 / TICK_MS)            // blinking of the field being set
@@ -58,6 +62,7 @@ static bool       dateEdited;   // year, month or day changed
 static int8_t     lastSec = -1; // second shown on the display last time
 static uint8_t    ticks;        // colon / blink phase
 static uint16_t   idleTicks;    // ticks since the last press in setting mode
+static uint8_t    keyShowTicks; // keypad test: ticks left to show the pressed key
 
 /* ---------- calendar helpers (years 2000..2099) ---------- */
 
@@ -223,17 +228,35 @@ bool Clock_IsSetting(void)
 void Clock_Tick(void)
 {
         uint8_t pressed = Buttons_Poll();
+        char    key     = Keypad_Poll();
 
 #if KEY_BEEP
-        if (Buttons_Pressed()) Beep_Click();
+        if (Buttons_Pressed() || key) Beep_Click();
 #endif
 
         if (state == CLK_TIME) {
                 if (pressed & BTN_PRGM) {
+                        keyShowTicks = 0;
                         EnterSetting();
                         Render(&edit, state, CLK_TIME, true);
                         return;
                 }
+#if KEYPAD_TEST
+                // Keypad test: show the pressed key as "KEY    x" for a moment
+                if (key) {
+                        char text[9] = "KEY     ";
+                        text[7] = key;
+                        ClearDisplay();
+                        DisplayPrint(text);
+                        DrawDisplay();
+                        keyShowTicks = KEY_SHOW_TICKS;
+                        return;
+                }
+                if (keyShowTicks) {
+                        if (--keyShowTicks == 0) lastSec = -1;  // back to the time
+                        return;
+                }
+#endif
                 // Redraw on every second change, blink the colon at 1 Hz
                 if (!RTCC_TimeGet(&now)) return;        // RTCC registers are updating
                 if (now.tm_sec != lastSec) {

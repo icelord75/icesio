@@ -25,6 +25,7 @@
       <itemPath>buttons.h</itemPath>
       <itemPath>clock.h</itemPath>
       <itemPath>beep.h</itemPath>
+      <itemPath>keypad.h</itemPath>
       <itemPath>lcd.h</itemPath>
       <itemPath>led.h</itemPath>
       <itemPath>bme280.h</itemPath>
@@ -66,6 +67,7 @@
       <itemPath>buttons.c</itemPath>
       <itemPath>clock.c</itemPath>
       <itemPath>beep.c</itemPath>
+      <itemPath>keypad.c</itemPath>
       <itemPath>lcd.c</itemPath>
       <itemPath>led.c</itemPath>
       <itemPath>uart.c</itemPath>
