@@ -53,8 +53,8 @@ All peripherals share one I²C bus. A 19200 bps TTL UART is available for debugg
 
 | CASIO pad      | MCU pin          | Use                                                      |
 |----------------|------------------|----------------------------------------------------------|
-| MODE           | RH0              | side button, active high (connects to +)                 |
-| PRGM           | RH1              | side button, active high (connects to +)                 |
+| MODE           | RH0              | side button, active low (connects to GND, weak pull-up)  |
+| PRGM           | RH1              | side button, active low (connects to GND, weak pull-up)  |
 | SIG            | RG0 (PWM3 via PPS) | buzzer, through T1 (PDTC114) and the coil L1           |
 | K2…K5          | RG1, RG2, RG3, RF7 | keypad rows (driven low)                               |
 | K6…K9          | RC7, RC6, RC0, RC1 | keypad columns (inputs, weak pull-ups)                 |
@@ -71,7 +71,7 @@ by MPLAB Code Configurator (`icesio.mc3`, [`mcc_generated_files/`](icesio.X/mcc_
 |------------------------------------------|---------------------------------------------------------------------|
 | [`main.c`](icesio.X/main.c)              | power-on self test over UART, main loop (100 ms tick)               |
 | [`clock.c`](icesio.X/clock.c)            | time screen and time / date setting                                 |
-| [`buttons.c`](icesio.X/buttons.c)        | MODE / PRGM debouncing, auto-repeat, software pull-down             |
+| [`buttons.c`](icesio.X/buttons.c)        | MODE / PRGM debouncing, auto-repeat                                 |
 | [`beep.c`](icesio.X/beep.c)              | buzzer: ~4 kHz hardware PWM, key click                              |
 | [`keypad.c`](icesio.X/keypad.c)          | 4×4 keypad matrix scan with debouncing                              |
 | [`lcd.c`](icesio.X/lcd.c)                | 7-segment font and table-driven LCD segment mapping                 |
@@ -173,8 +173,8 @@ Compile-time switches, all at the top of their source files:
 | `KEYPAD_TEST`       | `clock.c`   | `1`     | show the pressed key on the time screen                    |
 | `KEYPAD_ROW_K2`     | `keypad.c`  | `1`     | scan the bottom row on RG1; `0` keeps RG1 as UART TX       |
 | `SET_TIMEOUT_S`     | `clock.c`   | `60`    | leave setting mode after this many seconds                 |
-| `BTN_ACTIVE_LOW`    | `buttons.c` | `0`     | buttons connect to + (`0`) or to GND (`1`)                 |
-| `BTN_SOFT_PULLDOWN` | `buttons.c` | `1`     | software pull-down, see [known issues](#known-issues)      |
+| `BTN_ACTIVE_LOW`    | `buttons.c` | `1`     | buttons connect to GND (`1`, as on goodwatch) or to + (`0`) |
+| `BTN_SOFT_PULLDOWN` | `buttons.c` | `1`     | with `BTN_ACTIVE_LOW 0` only: software pull-down (no resistors to GND) |
 | `BEEP_PR`           | `beep.c`    | `14`    | tone: 62.5 kHz / (`BEEP_PR` + 1) ≈ 4167 Hz                 |
 | `BEEP_CLICK_MS`     | `beep.c`    | `30`    | key click length                                           |
 | `USE_COMPASS`       | `main.c`    | `0`     | initialise and poll the compass                            |
@@ -204,9 +204,6 @@ schematic.png          schematic, rev. V2
 
 ## Known issues
 
-- **No pull-downs on MODE / PRGM.** The buttons connect the pins to +, and the PIC16F19197 has no internal
-  pull-downs. Until 100 k–1 M resistors to GND are added, the firmware discharges the pins before each read
-  (`BTN_SOFT_PULLDOWN`). While a button is held this briefly (~50 µs every 100 ms) shorts the pin to +.
 - **RTCC runs from MFINTOSC.** The SOSC crystal pins are used by the keypad, so the clock runs from the
   internal oscillator (about ±1–2 %, and it drifts with temperature). The [rate correction](#rate-correction)
   compensates the average error; a 32.768 kHz crystal is planned for the next board revision.

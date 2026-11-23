@@ -3,11 +3,16 @@
  *
  * Side buttons of the CASIO 3208 module.
  *   MODE -> RH0, PRGM -> RH1 (see main.h)
- * Pressing a button connects the pad to VCC (+), so the pins read
- * active-high. PIC16F19197 has no internal pull-downs and the board has
- * no external ones, so a released button leaves the input floating.
+ * Pressing a button connects the pad to GND, so the pins use the internal
+ * weak pull-ups and read active-low. Same as the goodwatch board for the
+ * same module: MODE/PRGM go straight to MCU pins with pull-ups enabled and
+ * a press reads as 0.
  *
- * Software workaround (BTN_SOFT_PULLDOWN): if a pin reads high, it is
+ * BTN_ACTIVE_LOW 0 is kept for a module whose buttons switch to VCC. The
+ * PIC16F19197 has no internal pull-downs, so in that case the pins float
+ * when released and need resistors to GND or the software workaround below.
+ *
+ * Software workaround (BTN_SOFT_PULLDOWN, active-high only): if a pin reads high, it is
  * discharged by driving it low for a couple of instruction cycles, then
  * switched back to input and read again. A floating pin stays low,
  * a pressed button pulls it back high at once.
@@ -22,8 +27,8 @@
 #include "main.h"
 #include "buttons.h"
 
-#define BTN_ACTIVE_LOW      0   // 0 - button connects the pin to VCC, 1 - to GND
-#define BTN_SOFT_PULLDOWN   1   // 1 - no pull-down resistors on the board, discharge pins before reading
+#define BTN_ACTIVE_LOW      1   // 1 - button connects the pin to GND (pull-ups), 0 - to VCC
+#define BTN_SOFT_PULLDOWN   1   // active-high only: no pull-down resistors, discharge pins before reading
 #define BTN_PINS            0x03                // RH0 (MODE), RH1 (PRGM) in port H
 #define BTN_REPEAT_MASK     BTN_MODE            // buttons with auto-repeat
 #define REPEAT_DELAY_TICKS  (600 / TICK_MS)     // hold time before auto-repeat starts
@@ -76,7 +81,9 @@ void Buttons_Init(void)
         // RH0/RH1 are already inputs (TRISH in pin_manager.c), but MCC leaves
         // ANSELH at its reset value (analog): digital reads would return 0
         ANSELH &= (uint8_t)~BTN_PINS;
+#if !BTN_ACTIVE_LOW && BTN_SOFT_PULLDOWN
         LATH   &= (uint8_t)~BTN_PINS;           // output level for the discharge pulse
+#endif
 #if BTN_ACTIVE_LOW
         WPUHbits.WPUH0 = 1;     // weak pull-ups, button pulls to GND
         WPUHbits.WPUH1 = 1;

@@ -12,7 +12,8 @@
 
 #define TICK_MS     100     // main loop period, ms
 
-// Side buttons (all schematics V1/V2: MODE -> RH0/COM4, PRGM -> RH1/COM5)
+// Side buttons (all schematics V1/V2: MODE -> RH0/COM4, PRGM -> RH1/COM5),
+// active low: a press connects the pin to GND (see buttons.c)
 #define CASIO_MODE  PORTHbits.RH0
 #define CASIO_PRGM  PORTHbits.RH1
 
