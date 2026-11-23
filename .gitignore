@@ -28,3 +28,7 @@ reference/
 
 # VS Code MPLAB extension: local tool paths
 icesio.X/.vscode/*-local.json
+
+# VS Code MPLAB extension: generated CMake project and build output
+icesio.X/_build/
+icesio.X/cmake/
